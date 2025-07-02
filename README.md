@@ -1,52 +1,54 @@
-C#查询擅长数据
-快速读取擅长数据
-#地区读取擅长输出
-公共静态数据集GetDataSet(字符串sheetName，字符串filePath)
+C# 查询 Excel 数据
+```
+#region 读取Excel输出
+public static DataSet GetDataSet(string sheetName, string filePath)
 {
-var ds = new DataSet()；
-string connStr = @ " Provider = Microsoft。ACE . OLEDB.12.0数据源= "+file path+"；扩展属性= \ " Excel 12.0HDR =是；IMEX = 1 \ " "；
-字符串文件类型=路径。get extension(file path)；
+    var ds = new DataSet();
+    string connStr = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source="+ filePath + ";Extended Properties=\"Excel 12.0;HDR=YES;IMEX=1\"";
+    string fileType= Path.GetExtension(filePath);
     {
-使用(var conn = new oledb connection(connStr))
+        using (var conn = new OleDbConnection(connStr))
         {
-尝试
+            try
             {
-conn . Open()；
-var schemaTable = conn . GetOleDbSchemaTable(OleDbSchemaGuid。表，空)；
-//string sheetName1 = schemaTable。行[3]["表格名称"]。ToString()；
-string sheet name 1 = sheet name+" $ "；
-string sheet name 2 = " "+sheet name+" $ ' "；
-foreach(schemaTable中的DataRow行。行)
+                conn.Open();
+                var schemaTable = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                //string sheetName1 = schemaTable.Rows[3]["TABLE_NAME"].ToString();
+                string sheetName1 =  sheetName + "$";
+                string sheetName2 = "'" + sheetName + "$'";
+                foreach (DataRow row in schemaTable.Rows)
                 {
-字符串当前=行["表格名称"]。ToString()；
-if(当前==工作表名称1||当前==工作表名称2)
+                    string current = row["TABLE_NAME"].ToString();
+                    if(current== sheetName1|| current == sheetName2)
                     {
-var adapter = new oledb dataadapter($ " SELECT * FROM[{当前}]“，conn)；
-适配器。Fill(ds，“excel data”)；
-打破；
+                        var adapter = new OleDbDataAdapter($"SELECT * FROM [{current}]", conn);
+                        adapter.Fill(ds, "ExcelData");
+                        break;
                     }
                 }
             }
-catch(例外ex)
+            catch (Exception ex)
             {
-如果(ex！=空)
-系统。控制台. WriteLine(例如。消息)；
+                if (ex != null)
+                    System.Console.WriteLine(ex.Message);
             }
-最后
+            finally
             {
-如果(conn！=空)
+                if (conn != null)
                 {
-conn . Close()；
-conn . Dispose()；
+                    conn.Close();
+                    conn.Dispose();
                 }
             }
 
         }
     }
         
-    返回ds；
+    return ds;
 }
-#结束区域
+#endregion
 
 
 
+
+```
